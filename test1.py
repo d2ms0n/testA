@@ -93,7 +93,7 @@ if __name__ == "__main__":
     new_user = User(
         id= None,
         name="ИванПетров",
-        age=25,
+        age=35,
         email="ivan.petrov@example.com",
     )
     
