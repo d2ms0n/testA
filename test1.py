@@ -1,13 +1,15 @@
+from dataclasses import dataclass
 import sqlite3
+from test2 import Optional
 
 
-
+@dataclass
 class User:
-    def __init__(self, id, name, age, email):
-        self.id = id
-        self.name = name
-        self.email= email
-        self.age = age
+        
+        id: Optional[int] = None
+        name: str ="" 
+        email: str= ""
+        age: Optional[int] = None
 
     
 
@@ -91,7 +93,6 @@ if __name__ == "__main__":
     
     # Создаем нового пользователя
     new_user = User(
-        id= None,
         name="ИванПетров",
         age=35,
         email="ivan.petrov@example.com",
