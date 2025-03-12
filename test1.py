@@ -119,7 +119,11 @@ if __name__ == "__main__":
     db.close()
 
 
-  #  git remote add origin https://github.com/d2ms0n/testA.git
-  #git remote set-url origin https://github.com/d2ms0n/testA.git
+
+#
+#
+
+#  git remote add origin https://github.com/d2ms0n/testA.git
+#git remote set-url origin https://github.com/d2ms0n/testA.git
 
 
