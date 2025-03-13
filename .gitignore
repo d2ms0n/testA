@@ -2,3 +2,14 @@ users.db
 myenv
 /__pycache__
 .vc
+/.vs/test/FileContentIndex/6595f079-8756-4cf6-bde7-1e106e96f678.vsidx
+*.vsidx
+/.vs/test/v17/DocumentLayout.backup.json
+/.vs/test/v17/DocumentLayout.json
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/test/FileContentIndex/213a1b6b-1d98-48e5-a573-4c7eee043b52.vsidx
+/.vs/test/FileContentIndex/68365214-4c50-4208-a185-88c5aeb2bc5f.vsidx
+/.vs/test/FileContentIndex/87fa90a2-f67e-47d3-949e-38d502831541.vsidx
+/.vs/test/FileContentIndex/8f50aa6c-5cfc-480d-9273-7800b2066098.vsidx
+/.vs/test/v17/.wsuo
