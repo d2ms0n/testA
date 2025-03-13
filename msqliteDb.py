@@ -10,8 +10,13 @@ class Database:
         self.create_table()
 
     def create_table(self):
-        self.cursor.execute(create_table_sql)
-        self.connection.commit()
+        try:
+            self.cursor.execute(create_table_Users_sql)
+            self.connection.commit()
+            self.cursor.execute(create_table_Car_sql)
+            self.connection.commit()
+        except sqlite3.Error as e:
+            print(f"Ошибка при создании таблиц: {e}")
 
     def add_user(self, user):
         try:
