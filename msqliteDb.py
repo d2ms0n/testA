@@ -1,5 +1,6 @@
 # -*- coding: cp1251 -*-
 import sqlite3
+from queries import *
 
 
 class Database:
@@ -9,16 +10,7 @@ class Database:
         self.create_table()
 
     def create_table(self):
-        self.cursor.execute(
-            """
-            CREATE TABLE IF NOT EXISTS Users (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT NOT NULL,
-                age INTEGER
-            )
-        """
-        )
+        self.cursor.execute(create_table_sql)
         self.connection.commit()
 
     def add_user(self, user):
