@@ -1,4 +1,5 @@
 # -*- coding: cp1251 -*-
+import email
 import sqlite3
 from queries import *
 
@@ -15,6 +16,8 @@ class Database:
             self.connection.commit()
             self.cursor.execute(create_table_Car_sql)
             self.connection.commit()
+            self.cursor.execute(create_table_Comments_sql)
+            self.connection.commit()
         except sqlite3.Error as e:
             print(f"Ошибка при создании таблиц: {e}")
 
@@ -22,10 +25,10 @@ class Database:
         try:
             self.cursor.execute(
                 """
-                INSERT INTO Users (name, email, age)
-                VALUES (?, ?, ?)
+                INSERT INTO Users (user_login, user_password, user_token, name, email, phone, role)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
-                (user.name, user.email, user.age),
+                (user.user_login, user.user_password, user.user_token, user.name, user.email, user.phone, user.role),
             )
             self.connection.commit()
             print(f"Пользователь {user.name} успешно добавлен")
@@ -33,7 +36,7 @@ class Database:
             print(f"Ошибка при добавлении пользователя: {e}")
 
     def get_user_by_id(self, user_id):
-        self.cursor.execute("SELECT * FROM Users WHERE id = ?", (user_id,))
+        self.cursor.execute("SELECT * FROM Users WHERE user_id = ?", (user_id,))
         user_data = self.cursor.fetchone()
 
         if user_data:

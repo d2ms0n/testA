@@ -4,10 +4,13 @@
 create_table_Users_sql = """
             CREATE TABLE IF NOT EXISTS Users (
                 user_id INTEGER PRIMARY KEY,
+                user_login TEXT NOT NULL,
+                user_password TEXT NOT NULL,
+                user_token TEXT,
                 name TEXT NOT NULL,
                 email TEXT NOT NULL,
                 phone TEXT,
-                role INTEGER
+                role TEXT CHECK(role IN ('Администратор', 'Менеджер', 'Покупатель')) NOT NULL
             )
 """
 
@@ -27,3 +30,13 @@ CREATE TABLE IF NOT EXISTS Car (
 
 """
 
+create_table_Comments_sql = """
+            CREATE TABLE IF NOT EXISTS Comments (
+                com_id INTEGER PRIMARY KEY,
+                car_id INTEGER NOT NULL,
+                autor_id INTEGER,
+                autor_name TEXT,
+                coment_data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                text TEXT NOT NULL
+            )
+"""
