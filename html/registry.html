@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+
+<html lang="ru" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Регистрация нового пользователя</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+</head>
+<body>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for message in messages %}
+        <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <fieldset>
+        <legend>Регистрация нового пользователя</legend>
+        <form method="POST">
+            <input type="text" name="name" placeholder="Имя" onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+            <input type="password" name="password" placeholder="Пароль" onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+            <button type="submit">Зарегистрировать</button>
+        </form>
+    </fieldset>
+</body>
+</html>
