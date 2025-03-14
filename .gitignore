@@ -16,3 +16,5 @@ myenv
 cars.db
 /.vs/ProjectSettings.json
 /.vs/PythonSettings.json
+/.vs/test/config/applicationhost.config
+/instance/database.db
