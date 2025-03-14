@@ -1,0 +1,5 @@
+<form method="POST">
+    <p>Вы уверены, что хотите удалить пользователя {{ user.name }}?</p>
+    <button type="submit">Да</button>
+    <a href="{{ url_for('index') }}">Отмена</a>
+</form> 
