@@ -18,3 +18,8 @@ cars.db
 /.vs/PythonSettings.json
 /.vs/test/config/applicationhost.config
 /instance/database.db
+/.vs/test/v17
+/env/Include/site/python3.9/greenlet
+/env/Lib/site-packages
+/env/Scripts
+/env/pyvenv.cfg
