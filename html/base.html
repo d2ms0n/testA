@@ -12,10 +12,37 @@
 </head>
 <body>
     <div class="sidebar">
+        <div class="sidebar-header">
+
+            {% if current_user is defined and current_user.user_login is defined %}
+            <div class="user-info">
+                <span class="username">{{ current_user.user_login }}</span>
+            </div>
+            <a href="logout" class="logout-button">Выход</a>
+
+            {% else %}
+            <div class="user-info">
+                <span class="username">Вы не опознаны</span>
+            </div>
+            <a href="login" class="logout-button">Вход</a>
+            {% endif %}
+        </div>
+
         <a href="index">Главная</a>
-        <a href="registry">регистрация</a>
-        <a href="login">войти</a>
-        <a href="#help">Помощь</a>
+        <ul>
+            <li class="dropdown">
+                <a href="#">Пользователи</a>
+                <ul class="dropdown-content">
+                    <li><a href="alluser">Посмотреть всех</a></li>
+                    <li><a href="registry">Добавить</a></li>
+                    <li><a href="#">Удалить</a></li>
+                </ul>
+            </li>
+        </ul>
+        <a href="registry">Регистрация</a>
+
+
+
     </div>
 
     <div class="main-content">

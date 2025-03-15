@@ -1,10 +1,11 @@
 from sqlite3 import IntegrityError
 from sqlalchemy import Column, Text, CheckConstraint
+from sqlalchemy.orm import Session
 import external as e  # внешние функции
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from flask_login import LoginManager, UserMixin, login_user, logout_user, current_user
+from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # from flask_jwt_extended import (
@@ -25,6 +26,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
+login_manager.login_message = "Пожалуйста, войдите в систему"
+login_manager.login_message_category = "info"
 
 
 # Определение модели
@@ -41,6 +44,9 @@ class User(UserMixin, db.Model):
         nullable=True,
     )
     password_hash = db.Column(db.String(128))
+    
+    def __repr__(self):
+        return f"<User {self.user_id},{self.user_login},{self.name},{self.email},{self.phone},{self.role},>"
 
     # created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -66,7 +72,7 @@ with app.app_context():
 # Загрузка пользователя для Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.get(int(user_id)) 
 
 
 @app.route("/registry", methods=["GET", "POST"])
@@ -136,31 +142,30 @@ def login():
 
     return render_template("login.html")
 
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('login')) 
 
 
 
-# Создание (Create)
-@app.route("/create", methods=["GET", "POST"])
-def create():
-    if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-
-        new_user = User(name=name, email=email)
-        db.session.add(new_user)
-        db.session.commit()
-
-        return redirect(url_for("index"))
-
-    return render_template("create.html")
 
 
-# Чтение (Read)
+# Главная
 @app.route("/")
 @app.route("/index")
+@login_required
 def index():
     users = User.query.all()
     return render_template("index.html", users=users)
+
+# вывод всех пользователей
+@app.route("/alluser")
+@login_required
+def alluser():
+    users = User.query.all()
+    return render_template("alluser.html", users=users)
 
 
 # Обновление (Update)

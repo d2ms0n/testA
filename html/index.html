@@ -4,26 +4,8 @@
 
 {% block content %}
 
-<h2>Список пользователей</h2>
-<table>
-    <tr>
-        <th>Логин</th>
-        <th>Email</th>
-        <th class="actions">Действия</th>
-    </tr>
+<h2>Главная страница</h2>
 
-    {% for user in users %}
-    <tr>
-
-    <th>{{ user.user_login }}</th> <th> {{ user.email }}</th>
-    <th>
-    <a href="{{ url_for('update', id=user.user_id) }}">Редактировать</a>
-    <a href="{{ url_for('delete', id=user.user_id) }}">Удалить</a>
-    </th></tr>
-
-    {% endfor %}
-
- </table>
     {% endblock %}
 
 

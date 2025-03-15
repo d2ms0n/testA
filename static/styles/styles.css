@@ -160,3 +160,89 @@ table a {
     table a:hover {
         color: #f44336;
     }
+
+
+/* Стили для раскрывающегося меню */
+.dropdown-content {
+    display: none;
+   /* position: absolute;*/
+    /* min-width: 150px;*/
+    list-style: none;
+    z-index: 1;
+    width: 100%;
+}
+
+    .dropdown-content li {
+        padding: 8px;
+    }
+
+        .dropdown-content li a {
+            color: white;
+        }
+            .dropdown-content li a:hover {
+                background-color: #414141;
+            }
+
+
+.dropdown:hover .dropdown-content {
+    display: block;
+    background-color: #292929
+}
+
+.content {
+    margin-left: 220px;
+    padding: 20px;
+
+}
+ul {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-left: 0;
+    width: 100%;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+/* Информация о пользователе */
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.username {
+    font-weight: 500;
+    font-size: 12px;
+    color: #333;
+    margin-right: 10px;
+}
+
+
+
+/* Кнопка выхода */
+.logout-button {
+    background-color: #555;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    color: white;
+}
+a.logout-button {
+    text-decoration: none;
+    color: white;
+}
+
+    .logout-button:hover {
+        background-color: #c82333;
+    }
+
