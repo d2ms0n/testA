@@ -183,6 +183,7 @@ def update(id):
 
 
 # Удаление (Delete)
+# return redirect(request.referrer or url_for('default_route'))
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete(id):
     user = User.query.get_or_404(id)
