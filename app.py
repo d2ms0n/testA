@@ -1,7 +1,6 @@
 import external as e #внешние функции
 from flask import Flask, flash, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-#from flask_cors import CORS
 from datetime import datetime
 # from flask_jwt_extended import (
 #     JWTManager, 
@@ -21,7 +20,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'  # Замените на свой секретный ключ
 #jwt = JWTManager(app)
-#CORS(app)
+
 
 
 
