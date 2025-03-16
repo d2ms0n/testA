@@ -17,12 +17,15 @@
     {% for user in users %}
     <tr>
 
-        <th>{{ user.user_login }}</th>
+        <th>{{ user.login }}</th>
         <th> {{ user.email }}</th>
         <th> {{ user.name }}</th>
-        <th> {{ user.role }}</th>
-        <th>
-            <a href="{{ url_for('update', id=user.user_id) }}">Редактировать</a>
+        <th> {{ user.role.value}}</th>
+        <th class="centered">
+            <a href="{{ url_for('update', id=user.id) }}">
+            <img src="{{ url_for('static', filename='img/edit.png') }}" alt="Редактировать" />
+            Редактировать
+            </a>
         </th>
     </tr>
 

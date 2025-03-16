@@ -143,8 +143,32 @@ th, td {
 }
 
 th {
+    white-space: nowrap;
     background-color: #f2f2f2;
 }
+
+    th a {
+        text-decoration: none;
+        color: #333;
+    }
+.centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+    .centered a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .centered img {
+        margin-right: 5px;
+    }
 
 .actions {
     width: 150px;

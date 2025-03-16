@@ -1,78 +1,17 @@
 from sqlite3 import IntegrityError
+from flask import flash, redirect, render_template, request, url_for
 from sqlalchemy import Column, Text, CheckConstraint
-from sqlalchemy.orm import Session
-import external as e  # внешние функции
-from flask import Flask, flash, jsonify, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from flask_login import LoginManager, UserMixin, login_required, login_user, logout_user, current_user
-from werkzeug.security import generate_password_hash, check_password_hash
-
-# from flask_jwt_extended import (
-#     JWTManager,
-#     create_access_token,
-#     jwt_required,
-#     get_jwt_identity
-# )
+from flask_login import LoginManager, UserMixin, login_manager, login_required, login_user, logout_user, current_user
+from models import User, Role, generate_password_hash, app, db
+import external as e  # внешние функции
 
 
-# Инициализация приложения
-app = Flask(__name__, template_folder="html")
-app.secret_key = "your-secret-key"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
-db = SQLAlchemy(app)
-login_manager = LoginManager(app)
-login_manager.login_view = "login"
-login_manager.login_message = "Пожалуйста, войдите в систему"
-login_manager.login_message_category = "info"
 
 
-# Определение модели
-class User(UserMixin, db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    user_login = db.Column(db.String(80), unique=True, nullable=False)
-    user_password = db.Column(db.String(150), unique=True)
-    name = db.Column(db.String(80))
-    email = db.Column(db.String(80), unique=True, nullable=False)
-    phone = db.Column(db.String(30))
-    role = Column(
-        Text,
-        CheckConstraint("role IN ('Администратор', 'Менеджер', 'Покупатель')"),
-        nullable=True,
-    )
-    password_hash = db.Column(db.String(128))
-    
-    def __repr__(self):
-        return f"<User {self.user_id},{self.user_login},{self.name},{self.email},{self.phone},{self.role},>"
 
-    # created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        print(self.user_password , password)
-        return check_password_hash(self.user_password, password)
-    
-    def get_id(self):
-        return str(self.user_id)
-
-    # def __repr__(self):
-    #     return f"<User {self.name}>"
-
-
-# Создание базы данных (альтернативный способ для Flask 2.3.0)
-with app.app_context():
-    db.create_all()
-
-
-# Загрузка пользователя для Flask-Login
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id)) 
 
 
 @app.route("/registry", methods=["GET", "POST"])
@@ -90,11 +29,12 @@ def registry():
 
                 # Подготовка данных
                 user_data = {
-                    "user_login": form_data["login"],
+                    "login": form_data["login"],
                     "email": form_data["email"],
                     "name": form_data["name"],
                     "phone": form_data["phone"],
-                    "user_password": generate_password_hash(form_data["password"]),
+                    "password_hash": generate_password_hash(form_data["password"]),
+                    "role":Role.BUYER
                 }
 
                 # Создание пользователя
@@ -132,8 +72,8 @@ def login():
         login = request.form["login"]
         password = request.form["password"]
 
-        user = User.query.filter_by(user_login=login).first()
-        print(user.user_id)
+        user = User.query.filter_by(login=login).first()
+        #print(user.id)
         if user and user.check_password(password):
             login_user(user)
             return redirect(url_for("index"))

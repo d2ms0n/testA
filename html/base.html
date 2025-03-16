@@ -14,9 +14,9 @@
     <div class="sidebar">
         <div class="sidebar-header">
 
-            {% if current_user is defined and current_user.user_login is defined %}
+            {% if current_user is defined and current_user.login is defined %}
             <div class="user-info">
-                <span class="username">{{ current_user.user_login }}</span>
+                <span class="username">{{ current_user.login }}</span>
             </div>
             <a href="logout" class="logout-button">Выход</a>
 

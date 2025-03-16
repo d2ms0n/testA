@@ -100,3 +100,51 @@ db.close()
 
 #  git remote add origin https://github.com/d2ms0n/testA.git
 # git remote set-url origin https://github.com/d2ms0n/testA.git
+
+# from enum import Enum
+# from datetime import datetime
+# from flask_login import UserMixin
+# from werkzeug.security import generate_password_hash, check_password_hash
+# from app import db
+
+# # Определение ролей через Enum для лучшей типизации
+# class Role(Enum):
+#     ADMIN = "Администратор"
+#     MANAGER = "Менеджер"
+#     BUYER = "Покупатель"
+
+# class User(UserMixin, db.Model):
+#     __tablename__ = 'users'
+    
+#     id = db.Column(db.Integer, primary_key=True)
+#     login = db.Column(db.String(80), unique=True, nullable=False)
+#     email = db.Column(db.String(80), unique=True, nullable=False)
+#     name = db.Column(db.String(80))
+#     phone = db.Column(db.String(30))
+#     role = db.Column(db.Enum(Role), nullable=True)
+#     password_hash = db.Column(db.String(128))
+#     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+#     def __repr__(self):
+#         return f"<User {self.id}, {self.login}, {self.name}, {self.email}, {self.phone}, {self.role}>"
+
+#     def set_password(self, password: str) -> None:
+#         self.password_hash = generate_password_hash(password)
+
+#     def check_password(self, password: str) -> bool:
+#         return check_password_hash(self.password_hash, password)
+
+#     def get_id(self) -> str:
+#         return str(self.id)
+
+#     @property
+#     def is_admin(self) -> bool:
+#         return self.role == Role.ADMIN
+
+#     @property
+#     def is_manager(self) -> bool:
+#         return self.role == Role.MANAGER
+
+#     @property
+#     def is_buyer(self) -> bool:
+#         return self.role == Role.BUYER
