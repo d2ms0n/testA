@@ -33,6 +33,10 @@ class Role(Enum):
     MANAGER = "Менеджер"
     BUYER = "Покупатель"
 
+    @classmethod
+    def choices(cls):
+        return [(role.name, role.value) for role in cls]
+
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     

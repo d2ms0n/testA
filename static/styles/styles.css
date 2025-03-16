@@ -270,3 +270,26 @@ a.logout-button {
         background-color: #c82333;
     }
 
+.select-container {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+    .select-container select {
+        width: 100%;
+        padding: 15px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        color: #333;
+    }
+
+        .select-container select:focus {
+            border-color: #666;
+            outline: none;
+        }
+
+
+option:checked, option:hover {
+    background-color: #f2f2f2;
+}

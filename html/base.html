@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,8 +7,6 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
     <style>
-
-
     </style>
 </head>
 <body>
@@ -16,7 +15,7 @@
 
             {% if current_user is defined and current_user.login is defined %}
             <div class="user-info">
-                <span class="username">{{ current_user.login }}</span>
+                <span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
             </div>
             <a href="logout" class="logout-button">Выход</a>
 
@@ -39,9 +38,13 @@
                 </ul>
             </li>
         </ul>
+        {% if current_user.is_authenticated and current_user.is_admin %}
+        <a href="registry">Добавить пользователя</a>
+        {% else %}
         <a href="registry">Регистрация</a>
+        {% endif %}
 
-
+    
 
     </div>
 
@@ -57,10 +60,10 @@
                 {% endfor %}
             </div>
         </fieldset>
-            {% endif %}
-            {% endwith %}
+        {% endif %}
+        {% endwith %}
 
-            {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
     </div>
 </body>
 </html>
