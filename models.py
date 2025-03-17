@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from flask import Flask
 from flask_login import LoginManager, UserMixin
@@ -48,6 +49,69 @@ class User(UserMixin, db.Model):
     role = db.Column(db.Enum(Role), nullable=True)
     password_hash = db.Column(db.String(128))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @classmethod
+    def authenticate(cls, login, password):
+        try:
+            user = cls.query.filter_by(login=login).first()
+            if user and user.check_password(password):
+                return user, None
+            return None, "Неверный логин или пароль"
+        except Exception as e:
+            return None, f"Ошибка при аутентификации: {str(e)}"
+
+    @classmethod
+    def create(cls, form_data):     
+            
+        errors = []
+    
+        # Валидация логина
+        if not form_data["login"]:
+            errors.append("Логин не может быть пустым")
+        elif len(form_data["login"]) < 4 or len(form_data["login"]) > 30:
+            errors.append("Логин должен быть от 4 до 20 символов")
+        elif not re.match(r'^[a-zA-Z0-9_]+$', form_data["login"]):
+            errors.append("Логин может содержать только буквы, цифры и символ _")
+    
+        # Валидация email
+        if not form_data["email"]:
+            errors.append("Email не может быть пустым")
+        elif not re.match(r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z]{2,6}$', form_data["email"]):
+            errors.append("Неверный формат email")
+    
+        # Валидация имени
+        if len(form_data["name"]) > 50:
+            errors.append("Имя не может превышать 50 символов")
+    
+        # Валидация телефона
+        if not re.match(r'^\+?[0-9() -]{7,15}$', form_data["phone"]):
+            errors.append("Неверный формат телефона")
+    
+        # Валидация пароля
+        if len(form_data["password"]) < 6:
+            errors.append("Пароль должен содержать минимум 6 символов")
+    
+        # Если есть ошибки, возвращаем их
+        if errors:
+                return False, errors
+
+        user_data = {
+            "login": form_data["login"],
+            "email": form_data["email"],
+            "name": form_data["name"],
+            "phone": form_data["phone"],
+            "password_hash": generate_password_hash(form_data["password"]),
+            "role": Role.BUYER
+        }
+        try:
+            # Создание пользователя
+            new_user = cls(**user_data)
+            db.session.add(new_user)
+            db.session.commit()
+            return new_user, None
+        except Exception as ex:
+            db.session.rollback()
+            return None, str(ex)
     
     def __repr__(self):
         return f"<User {self.id}, {self.login}, {self.name}, {self.email}, {self.phone}, {self.role}>"

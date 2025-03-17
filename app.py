@@ -1,5 +1,5 @@
 from sqlite3 import IntegrityError
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 from models import User, Role, generate_password_hash, app, db
 import external as e  # внешние функции
@@ -18,21 +18,16 @@ def registry():
     if request.method == "POST":
         form_data = request.form
         
-        # Валидация данных
-        errors = e.validate_form_data(form_data)
-        if errors:
-            flash("\n".join(errors), "error")
-            return render_template("registry.html")
-
         # Создание пользователя
-        success, error_message = e.create_user(form_data)
+        user, errors = User.create(form_data)
         
-        if success:
+        if errors:
+            for error in errors:
+               flash(error)            
+            return render_template("registry.html")            
+        else:
             flash("Пользователь успешно создан", "success")
             return redirect(url_for("login"))
-        
-        flash(error_message, "error")
-        return render_template("registry.html")
 
     return render_template("registry.html")
 
@@ -48,20 +43,23 @@ def login():
         return redirect(url_for("index"))
 
     if request.method == "POST":
+
         login = request.form.get("login")
         password = request.form.get("password")
 
-        # Аутентификация пользователя
-        user = e.authenticate_user(login, password)
-        
-        if user:
+        user, error = User.authenticate(login, password)
+
+        if error:
+            flash(f"Ошибка: {error}", "danger")
+            return render_template("login.html")
+        elif user:
+            session.pop('_flashes', None)
             login_user(user)
             return redirect(url_for("index"))
         else:
-            flash("Неверный логин или пароль", "danger")
-
+            flash("Пользователь не найден", "danger")
+            
     return render_template("login.html")
-
 
 
 #Пользователь разлогинен
@@ -80,8 +78,8 @@ def logout():
 @app.route("/index")
 @login_required
 def index():
-    users = User.query.all()
-    return render_template("index.html", users=users)
+    
+    return render_template("index.html")
 
 
 
