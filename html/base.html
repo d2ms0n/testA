@@ -17,7 +17,7 @@
             <div class="user-info">
                 <span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
             </div>
-            <a href="logout" class="logout-button">Выход</a>
+            <a href="/logout" class="logout-button">Выход</a>
 
             {% else %}
             <div class="user-info">
@@ -27,24 +27,23 @@
             {% endif %}
         </div>
 
-        <a href="index">Главная</a>
-        <ul>
-            <li class="dropdown">
-                <a href="#">Пользователи</a>
-                <ul class="dropdown-content">
-                    <li><a href="alluser">Посмотреть всех</a></li>
-                    <li><a href="registry">Добавить</a></li>
-                    <li><a href="#">Удалить</a></li>
-                </ul>
-            </li>
-        </ul>
+        <a href="/index">Главная</a>
+
         {% if current_user.is_authenticated and current_user.is_admin %}
-        <a href="registry">Добавить пользователя</a>
+
+        <fieldset class="admin_panel">
+            <legend>Админ панель</legend>
+            <a href="/alluser">Все пользователи</a>
+            <a href="/registry">Добавить пользователя</a>
+        </fieldset>
+
         {% else %}
-        <a href="registry">Регистрация</a>
+        <a href="/registry">Регистрация</a>
         {% endif %}
 
-    
+ 
+
+
 
     </div>
 

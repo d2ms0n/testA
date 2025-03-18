@@ -11,10 +11,24 @@ import external as e  # внешние функции
 
 
 
+# Главная страница
+@app.route("/")
+@app.route("/index")
+@login_required
+def index():
+    
+    return render_template("index.html")
+
+
+
+
 # если метод GET отправляет форму
 # Если POST проверяет данные и создает нового пользователя с ролью по умолчанию Покупатель
 @app.route("/registry", methods=["GET", "POST"])
 def registry():
+
+    roles = Role.choices() 
+
     if request.method == "POST":
         form_data = request.form
         
@@ -24,12 +38,13 @@ def registry():
         if errors:
             for error in errors:
                flash(error)            
-            return render_template("registry.html")            
+            return render_template("registry.html", form_data=form_data, roles=roles )            
         else:
             flash("Пользователь успешно создан", "success")
             return redirect(url_for("login"))
 
-    return render_template("registry.html")
+    
+    return render_template("registry.html", form_data="", roles=roles)
 
 
 
@@ -71,15 +86,36 @@ def logout():
 
 
 
-
-
-# Главная страница
-@app.route("/")
-@app.route("/index")
+# Редактирование пользователя
+@app.route("/update/<int:id>", methods=["GET", "POST"])
 @login_required
-def index():
-    
-    return render_template("index.html")
+def update(id):
+
+    if not current_user.is_admin:
+        flash(f"У вас нет доступа к этой странице", "danger")
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        form_data = {}
+        for key in request.form:
+            form_data[key] = request.form.get(key)
+        print(f"form{form_data}")
+        user, error = User.update(form_data)
+
+
+        if error:
+            flash(f"Ошибка: {error}", "danger")
+            return redirect(url_for("update", id=id))
+        elif user:
+            
+            flash(f"Данные пользователя {user.login} обновлены")
+            return redirect(url_for("alluser"))
+        else:
+            flash("Пользователь не найден", "danger")
+
+    user = User.query.get_or_404(id)
+    roles = Role.choices()  # список всех доступных ролей
+    return render_template('update.html', user=user, roles=roles)
 
 
 
@@ -88,40 +124,39 @@ def index():
 @app.route("/alluser")
 @login_required
 def alluser():
+
+    if not current_user.is_admin:
+        flash(f"У вас нет доступа к этой странице", "danger")
+        return redirect(url_for("index"))
+
     users = User.query.all()
     return render_template("alluser.html", users=users)
 
 
-# Обновление (Update)
-@app.route("/update/<int:id>", methods=["GET", "POST"])
-def update(id):
-    user = User.query.get_or_404(id)
-
-    if request.method == "POST":
-        user.name = request.form["name"]
-        user.email = request.form["email"]
-        db.session.commit()
-        return redirect(url_for("alluser"))
-
-    roles = Role.choices()  # список всех доступных ролей
-    print(roles)
-    return render_template('update.html', user=user, roles=roles)
 
   
 
 
 # Удаление (Delete)
 # return redirect(request.referrer or url_for('default_route'))
-@app.route("/delete/<int:id>", methods=["GET", "POST"])
+@app.route("/delete/<int:id>", methods=["POST"])
+@login_required
 def delete(id):
-    user = User.query.get_or_404(id)
 
-    if request.method == "POST":
-        db.session.delete(user)
-        db.session.commit()
+    if not current_user.is_admin:
+        flash(f"У вас нет доступа к этой странице", "danger")
         return redirect(url_for("index"))
 
-    return render_template("delete.html", user=user)
+    user = User.query.get_or_404(id)
+
+    if user and request.method == "POST":
+        db.session.delete(user)
+        db.session.commit()
+        flash(f"Пользователь {user.login} удален")
+        return redirect(url_for("alluser"))
+
+    flash(f"Произошла ошибка")
+    return redirect(request.referrer or url_for('alluser'))
 
 
 if __name__ == "__main__":

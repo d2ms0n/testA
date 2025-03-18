@@ -6,7 +6,7 @@
 <fieldset>
     <legend>Редактировать профиль</legend>
 
-    <form method="POST" action="/update">
+    <form method="POST" action="/update/{{ user.id }}">
         <input type="hidden" name="id" value="{{ user.id }}">
 
         <label>Логин</label>
@@ -23,7 +23,7 @@
 
         <div class="select-container">
             <label>Роль</label>
-            <select>
+            <select name="role">
                 {% for role in roles %}
                 <option value="{{ role[0] }}" {% if user.role.name==role[0] %} selected {% endif %}>
                     {{ role[1] }}
@@ -36,7 +36,30 @@
         <input type="text" name="new_password">
 
         <button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="confirmDelete()">Удалить</button>
     </form>
- </fieldset>
+</fieldset>
+
+<!-- Всплывающее окно подтверждения -->
+<div id="deleteConfirm" class="modal">
+    <div class="modal-content">
+        <p>Вы уверены, что хотите удалить пользователя?</p>
+        <form action="/delete/{{ user.id }}" method="POST">
+            <input type="hidden" name="id" value="{{ user.id }}">
+            <button type="submit">Да, удалить</button>
+            <button type="button" onclick="closeConfirm()">Отмена</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        document.getElementById('deleteConfirm').style.display = 'block';
+    }
+
+    function closeConfirm() {
+        document.getElementById('deleteConfirm').style.display = 'none';
+    }
+</script>
 
 {% endblock %}
