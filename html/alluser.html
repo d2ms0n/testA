@@ -1,4 +1,4 @@
-{# templates/login.html #}
+{# templates/alluser.html #}
 {% extends "base.html" %}
 {% block title %}Главная{% endblock %}
 
@@ -22,7 +22,7 @@
         <th> {{ user.name }}</th>
         <th> {{ user.role.value}}</th>
         <th class="centered">
-            <a href="{{ url_for('update', id=user.id) }}">
+            <a href="{{ url_for('user_update', id=user.id) }}">
             <img src="{{ url_for('static', filename='img/edit.png') }}" alt="Редактировать" />
             Редактировать
             </a>

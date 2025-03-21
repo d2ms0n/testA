@@ -1,0 +1,67 @@
+{# templates/add_car.html #}
+{% extends "base.html" %}
+{% block title %}Добавить автомобиль{% endblock %}
+
+{% block content %}
+<fieldset>
+	<legend>Добавить автомобиль</legend>
+	<form method="POST">
+		<input type="text" name="car_number" placeholder="Номер авто" value="{{form_data.car_number}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+		<input type="text" name="model" placeholder="Модель авто" value="{{form_data.model}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
+		<input type="date" name="production_date" placeholder="Дата произврдства" value="{{form_data.production_date}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')"> 
+		<input type="date" name="warehouse_date" placeholder="Дата поступления" value="{{form_data.warehouse_date}}"  onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')"> 
+
+		<div class="select-container">
+			<label>Статус</label>
+			<select name="status">
+				{% for st in status %}
+				<option value="{{ st[0] }}" >
+					{{ st[1] }}
+				</option>
+				{% endfor %}
+			</select>
+		</div>
+
+
+		
+		
+		<div class="select-container">
+			<label>Менеджер</label>
+			<select name="manager_id">
+				{% for manager in managers %}
+				<option value="{{ manager.id }}" >
+					{{ manager.name }}
+				</option>
+				{% endfor %}
+			</select>
+		</div>
+
+		<div class="select-container">
+			<label>Покупатель</label>
+			<select name="buyer_id">
+				<option value="" selected>Нет</option>
+				{% for buer in buers %}
+				<option value="{{ buer.id }}" >
+					{{ buer.name }}
+				</option>
+				{% endfor %}
+			</select>
+		</div>
+
+
+		
+		
+		
+
+		<textarea name="description"  rows="3" placeholder="Введите ваш комментарий" value="{{form_data.description}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')" ></textarea>
+		
+
+
+		<button type="submit">Записать</button>
+	</form>
+{{managers}}
+</fieldset>
+{% endblock %}
+
+
+		<!--<input type="text" name="buyer_id" placeholder="Имя покупателя" value="{{form_data.name}}" onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">-->

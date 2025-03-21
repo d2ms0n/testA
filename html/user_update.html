@@ -6,7 +6,7 @@
 <fieldset>
     <legend>Редактировать профиль</legend>
 
-    <form method="POST" action="/update/{{ user.id }}">
+    <form method="POST" action="/user_update/{{ user.id }}">
         <input type="hidden" name="id" value="{{ user.id }}">
 
         <label>Логин</label>
@@ -44,7 +44,7 @@
 <div id="deleteConfirm" class="modal">
     <div class="modal-content">
         <p>Вы уверены, что хотите удалить пользователя?</p>
-        <form action="/delete/{{ user.id }}" method="POST">
+        <form action="/user_delete/{{ user.id }}" method="POST">
             <input type="hidden" name="id" value="{{ user.id }}">
             <button type="submit">Да, удалить</button>
             <button type="button" onclick="closeConfirm()">Отмена</button>

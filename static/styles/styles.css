@@ -15,7 +15,7 @@ form {
 }
 
 /* Стили полей ввода */
-input {
+input, textarea {
     width: 94%;
     padding: 15px;
     margin-bottom: 20px;
