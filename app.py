@@ -1,13 +1,14 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
-from models import Cars, Status, User, Role, app, db
+from external import id_to_name
+from models import Cars, Status, Role, User, app, db
 
 
 
 
 
-with app.app_context():
-	db.create_all()
+
+
 
 # Главная страница
 @app.route("/")
@@ -169,30 +170,95 @@ def delete(id):
 def add_car():
 
 	status = Status.choices() 
+	managers, buers = User.get_managers_and_buers()
 
 	if request.method == "POST":
-		form_data = request.form
-		print(form_data)
-		
-		# Создание пользователя
-		#cars, errors = Cars.create(form_data)
-		
-		# if errors:
-		# 	for error in errors:
-		# 	   flash(error)            
-		# 	return render_template("registry.html", form_data=form_data, roles=roles )            
-		# else:
-		# 	flash("Пользователь успешно создан", "success")
-		# 	return redirect(url_for("index"))
-	managers, buers = User.get_managers_and_buers()
-	print(managers, buers)
+
+		form_data = request.form	
+		cars, errors = Cars.create(form_data)	
+		if errors:
+			for error in errors:
+				flash(error)            
+			return render_template("add_car.html", form_data=form_data, status=status, managers=managers, buers=buers )            
+		else:
+			flash("Автомобиль успешно создан", "success")
+			return redirect(url_for("all_cars"))
+
+
 	return render_template("add_car.html", form_data="", status=status, managers=managers, buers=buers )
 
 
+
+# Редактирование пользователя
+@app.route("/update_car/<int:id>", methods=["GET", "POST"])
+@login_required
+def update_car(id):
+
+	status = Status.choices() 
+	managers, buers = User.get_managers_and_buers()
+
+	if not current_user.is_admin:
+		flash(f"У вас нет доступа к этой странице", "danger")
+		return redirect(url_for("index"))
+
+	if request.method == "POST":
+
+		form_data = request.form
+		car, error = Cars.update(form_data)
+
+		if error:
+			flash(f"Ошибка: {error}", "danger")
+			return render_template('update_car.html', form_data=form_data , status=status, managers=managers, buers=buers)
+		elif car:			
+			flash(f"Данные автомобиля {car.model} обновлены")
+			return redirect(url_for("all_cars"))
+		else:
+			flash("Автомобиль не найден", "danger")
+			return redirect(url_for("all_cars"))
+
+	form_data = Cars.query.get_or_404(id)
+	return render_template('update_car.html', form_data=form_data , status=status, managers=managers, buers=buers)
+
+
+# вывод всех автомобилей
+@app.route("/all_cars")
+@login_required
+def all_cars():
+
+	if not current_user.is_admin:
+		flash(f"У вас нет доступа к этой странице", "danger")
+		return redirect(url_for("index"))
+
+	cars = Cars.query.all()
+	return render_template("all_cars.html", cars=cars)
+
+
+
+# Удаление (Delete)
+@app.route("/car_delete/<int:id>", methods=["POST"])
+@login_required
+def car_delete(id):
+
+	if not current_user.is_admin:
+		flash(f"У вас нет доступа к этой странице", "danger")
+		return redirect(url_for("index"))
+
+	car = Cars.query.get_or_404(id)
+
+	if car and request.method == "POST":
+		db.session.delete(car)
+		db.session.commit()
+		flash(f"Автомобиль {car.model} удален")
+		return redirect(url_for("all_cars"))
+
+	flash(f"Произошла ошибка")
+	return redirect(request.referrer or url_for('all_cars'))
 
 
 #endregion
 
 
 if __name__ == "__main__":
+	with app.app_context():
+		db.create_all()
 	app.run(debug=True)

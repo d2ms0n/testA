@@ -1,11 +1,12 @@
-{# templates/add_car.html #}
+{# templates/update_car.html #}
 {% extends "base.html" %}
-{% block title %}Добавить автомобиль{% endblock %}
+{% block title %}Изменить автомобиль{% endblock %}
 
 {% block content %}
 <fieldset>
-	<legend>Добавить автомобиль</legend>
-	<form method="POST" action="/add_car">
+	<legend>Изменить автомобиль</legend>
+	<form method="POST" action="/update_car/{{ form_data.id }}">
+		<input type="hidden" name="id" value="{{ form_data.id }}">
 		<input type="text" name="car_number" placeholder="Номер авто" value="{{form_data.car_number}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
 		<input type="text" name="model" placeholder="Модель авто" value="{{form_data.model}}" required onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')">
 		<label>Дата произвордства</label>
@@ -17,7 +18,7 @@
 			<label>Статус</label>
 			<select name="status">
 				{% for st in status %}
-				<option value="{{ st[0] }}" >
+				<option value="{{ st[0] }}" {% if form_data.status.name==st[0] %} selected {% endif %}>	
 					{{ st[1] }}
 				</option>
 				{% endfor %}
@@ -28,7 +29,7 @@
 			<label>Менеджер</label>
 			<select name="manager_id">
 				{% for manager in managers %}
-				<option value="{{ manager.id }}" >
+				<option value="{{ manager.id }}" {% if form_data.manager_id==manager.id %} selected {% endif %}>	
 					{{ manager.name }}
 				</option>
 				{% endfor %}
@@ -38,9 +39,9 @@
 		<div class="select-container">
 			<label>Покупатель</label>
 			<select name="buyer_id">
-				<option value="" selected>Нет</option>
+				<option value="">Нет</option>
 				{% for buer in buers %}
-				<option value="{{ buer.id }}" >
+				<option value="{{ buer.id }}" {% if form_data.buyer_id==buer.id %} selected {% endif %}>	
 					{{ buer.name }}
 				</option>
 				{% endfor %}
@@ -48,7 +49,31 @@
 		</div>
 
 		<textarea name="description"  rows="3" placeholder="Введите ваш комментарий" value="{{form_data.description}}" onfocus="this.classList.add('focused')" onblur="this.classList.remove('focused')" ></textarea>
-		<button type="submit">Записать</button>
+		<button type="submit">Сохранить изменения</button>
+        <button type="button" onclick="confirmDelete()">Удалить</button>
 	</form>
 </fieldset>
+
+<!-- Всплывающее окно подтверждения -->
+<div id="deleteConfirm" class="modal">
+    <div class="modal-content">
+        <p>Вы уверены, что хотите удалить пользователя?</p>
+        <form action="/car_delete/{{ form_data.id }}" method="POST">
+            <input type="hidden" name="id" value="{{ form_data.id }}">
+            <button type="submit">Да, удалить</button>
+            <button type="button" onclick="closeConfirm()">Отмена</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function confirmDelete() {
+        document.getElementById('deleteConfirm').style.display = 'block';
+    }
+
+    function closeConfirm() {
+        document.getElementById('deleteConfirm').style.display = 'none';
+    }
+</script>
+
 {% endblock %}

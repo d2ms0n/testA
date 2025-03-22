@@ -22,8 +22,6 @@ login_manager.login_view = "login"
 login_manager.login_message = "Пожалуйста, войдите в систему"
 login_manager.login_message_category = "info"
 
-with app.app_context():
-	db.create_all()
 
 
 # Загрузка пользователя для Flask-Login
@@ -133,7 +131,7 @@ class User(UserMixin, db.Model):
 			"email": form_data["email"],
 			"name": form_data["name"],
 			"phone": form_data["phone"],
-			"role": form_data["role"],
+			"role": form_data["role"]
 		}
 
 		if form_data.get("password"):
@@ -209,7 +207,6 @@ class User(UserMixin, db.Model):
 
 	@staticmethod
 	def _validate_role(role):
-		print(role, Role)
 		errors = []
 		# Проверяем, что роль является допустимым значением из перечисления Role
 		if role not in [role.name for role in Role]:
@@ -261,14 +258,17 @@ class Cars(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	car_number = db.Column(db.String(30), unique=True, nullable=False)
 	model = db.Column(db.String(50), nullable=False)
-	production_date = db.Column(db.Date, nullable=True)
+	production_date = db.Column(db.Date, nullable=False)
 	warehouse_date = db.Column(db.Date, nullable=True)
 	status = db.Column(db.Enum(Status), nullable=False)
 	description = db.Column(db.Text)
 	manager_id = db.Column(db.Integer, nullable=True)
+	manager_name = db.Column(db.String(50), nullable=True)
 	buyer_id = db.Column(db.Integer, nullable=True)
+	buyer_name = db.Column(db.String(50), nullable=True)
 
 
+# Добавление автомобиля
 	@classmethod
 	def create(cls, form_data):
 
@@ -282,11 +282,27 @@ class Cars(db.Model):
 		if errors:
 			return False, errors
 
+
 		# Создание нового объекта
-		new_car = cls(**form_data)
+		manager_name = get_user_name(form_data.get("manager_id"))
+		buyer_name = get_user_name(form_data.get("buyer_id"))
+
+		data_car = {
+			"car_number": form_data["car_number"],
+			"model": form_data["model"],
+			"production_date": str_to_datetime(form_data["production_date"]),
+			"warehouse_date": str_to_datetime(form_data["warehouse_date"]),
+			"status": form_data["status"],
+			"description": form_data["description"],
+			"manager_id": form_data["manager_id"],
+			"manager_name":manager_name,
+			"buyer_id": form_data["buyer_id"],
+			"buyer_name":buyer_name
+		}
 
 		# Добавление в сессию и сохранение
 		try:
+			new_car = cls(**data_car)
 			db.session.add(new_car)
 			db.session.commit()
 			return new_car, None
@@ -296,8 +312,54 @@ class Cars(db.Model):
 			return None, str(ex)
 
 
+	
+
+# Обновление автомобиля
+	@classmethod  
+	def update(cls, form_data):
+
+		errors = []
+		errors += cls._validate_car_number(form_data.get("car_number"))
+		errors += cls._validate_model(form_data.get("model"))
+		errors += cls._validate_production_date(form_data.get("production_date"))
+		errors += cls._validate_warehouse_date(form_data.get("warehouse_date"))
+		errors += cls._validate_status(form_data.get("status"))
+
+		if errors:
+			return False, errors
 
 
+
+		manager_name = get_user_name(form_data.get("manager_id"))
+		buyer_name = get_user_name(form_data.get("buyer_id"))
+
+		data_car = {
+			"car_number": form_data["car_number"],
+			"model": form_data["model"],
+			"production_date": str_to_datetime(form_data["production_date"]),
+			"warehouse_date": str_to_datetime(form_data["warehouse_date"]),
+			"status": form_data["status"],
+			"description": form_data["description"],
+			"manager_id": form_data["manager_id"],
+			"manager_name":manager_name,
+			"buyer_id": form_data["buyer_id"],
+			"buyer_name":buyer_name
+		}
+
+		try:
+			
+			car = cls.query.get(form_data["id"]) 
+
+			for key, value in data_car.items():
+				setattr(car, key, value)
+			db.session.commit()
+			return car, None
+		except Exception as ex:
+			db.session.rollback()
+			return None, str(ex)
+
+
+#Валидация полученных данных
 	@staticmethod
 	def _validate_car_number(car_number):
 		errors = []
@@ -319,28 +381,30 @@ class Cars(db.Model):
 	@staticmethod
 	def _validate_production_date(production_date):
 		errors = []
-		# if not isinstance(production_date, date):
-		#     errors.append("Дата производства должна быть объектом datetime.date")
-		if production_date > date.today():
+
+		if str_to_datetime(production_date) > date.today():
 			errors.append("Дата производства не может быть в будущем")
 		return errors
 
 	@staticmethod
 	def _validate_warehouse_date(warehouse_date):
-		if warehouse_date:
-			errors = []
-			# if not isinstance(warehouse_date, date):
-			#     errors.append("Дата поступления на склад должна быть объектом datetime.date")
-			if warehouse_date > date.today():
-				errors.append("Дата поступления на склад не может быть в будущем")
+		errors = []
+
+		if warehouse_date == "":
+			return errors
+
+		if str_to_datetime(warehouse_date) > date.today():
+			errors.append("Дата поступления на склад не может быть в будущем")
 		return errors
 
 	@staticmethod
 	def _validate_status(status):
 		errors = []
-		if not isinstance(status, Status):
+
+		if status not in [status.name for status in Status]:
 			errors.append("Неверно указан статус автомобиля")
 		return errors
+
 
 	def __repr__(self):
 		return (
@@ -351,6 +415,9 @@ class Cars(db.Model):
 		)
 
 
+#Общие функции
+
+#Строку в datetime
 def str_to_datetime(str):
 
 	try:
@@ -361,23 +428,16 @@ def str_to_datetime(str):
 		return None
 
 
-if __name__ == "__main__":
+#Возвращает ищет юсера по ид и возвращает user.name 
+def get_user_name(manager_id):
 
-	with app.app_context():
-		db.create_all()
-
-		form_data = {
-			"car_number": "А123АА77",
-			"model": "Toyota Camry",
-			"production_date": str_to_datetime("2023-01-01"),
-			"warehouse_date": str_to_datetime("2023-02-01"),
-			"status": Status.SALE,  # Значение из вашего Enum Status
-			"description": "Автомобиль в отличном состоянии",
-			"manager_id": 1,
-			"buyer_id": None,
-		}
-		cars, errors = Cars.create(form_data)
-		print(f"cars-{cars}...erors-{errors}")
-
-		# 'manager_id': 1,
-		# 'buyer_id': None  # Можно оставить None, если покупатель еще не определен
+	try:
+		# Проверяем, что ID существует и является положительным числом
+		if manager_id is not None and int(manager_id) >= 0:
+			user=User.query.get(int(manager_id))
+			return user.name
+		return ""
+	
+	except ValueError:
+		# Если ID не может быть преобразован в целое число
+		return ""

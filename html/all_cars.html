@@ -1,0 +1,45 @@
+{# templates/alluser.html #}
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+
+<h2>Список всех пользователей</h2>
+<table>
+    <tr>
+        <th>Номер</th>
+        <th>Модель</th>
+        <th>Дата производства</th>
+        <th>Дата поставки</th>
+        <th>Статус</th>
+        <th>Описание</th>
+        <th>Ответственный</th>
+        <th>Покупатель</th>
+        <th class="actions">Действия</th>
+    </tr>
+
+    {% for car in cars %}
+    <tr>
+        <th> {{ car.car_number }}</th>
+        <th> {{ car.model }}</th>
+        <th> {{ car.production_date if car.production_date else '' }}</th>
+        <th> {{ car.warehouse_date if car.warehouse_date else '' }}</th>
+        <th> {{ car.status.value }}</th>
+        <th> {{ car.description }}</th>
+        <th> {{ car.manager_name }}</th>
+        <th> {{ car.buyer_name}}</th>
+
+        <th class="centered">
+            <a href="{{ url_for('update_car', id=car.id) }}">
+                <img src="{{ url_for('static', filename='img/edit.png') }}" alt="Редактировать" />
+                Редактировать
+            </a>
+        </th>
+    </tr>
+
+
+    {% endfor %}
+
+</table>
+	{% endblock %}
+

@@ -2,69 +2,71 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
-    <style>
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}{% endblock %}</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='styles/styles.css') }}">
+	<style>
+	</style>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
+	<div class="sidebar">
+		<div class="sidebar-header">
 
-            {% if current_user is defined and current_user.login is defined %}
-            <div class="user-info">
-                <span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
-            </div>
-            <a href="/logout" class="logout-button">Выход</a>
+			{% if current_user is defined and current_user.login is defined %}
+			<div class="user-info">
+				<span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
+			</div>
+			<a href="/logout" class="logout-button">Выход</a>
 
-            {% else %}
-            <div class="user-info">
-                <span class="username">Вы не опознаны</span>
-            </div>
-            <a href="login" class="logout-button">Вход</a>
-            {% endif %}
-        </div>
+			{% else %}
+			<div class="user-info">
+				<span class="username">Вы не опознаны</span>
+			</div>
+			<a href="login" class="logout-button">Вход</a>
+			{% endif %}
+		</div>
 
-        <a href="/index">Главная</a>
+		<a href="/index">Главная</a>
 
-        {% if current_user.is_authenticated and current_user.is_admin %}
+		{% if current_user.is_authenticated and current_user.is_admin %}
 
-        <fieldset class="admin_panel">
-            <legend>Админ панель</legend>
-            <a href="/alluser">Все пользователи</a>
-            <a href="/registry">Добавить пользователя</a>
-        </fieldset>
+		<fieldset class="admin_panel">
+			<legend>Админ панель</legend>
+			<a href="/alluser">Все пользователи</a>
+			<a href="/registry">Добавить пользователя</a>
+			<a href="/all_cars">Все автомобили</a>
+			<a href="/add_car">Добавить автомобиль</a>
+		</fieldset>
 
-        {% else %}
-        <a href="/registry">Регистрация</a>
-        {% endif %}
+		{% else %}
+		<a href="/registry">Регистрация</a>
+		{% endif %}
 
-        <a href="/add_car">addcar</a>
+
 
  
 
 
 
-    </div>
+	</div>
 
-    <div class="main-content">
+	<div class="main-content">
 
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        <fieldset>
-            <legend>Сообщение</legend>
-            <div class="flash-messages">
-                {% for message in messages %}
-                <div class="flash-message">{{ message }}</div>
-                {% endfor %}
-            </div>
-        </fieldset>
-        {% endif %}
-        {% endwith %}
+		{% with messages = get_flashed_messages() %}
+		{% if messages %}
+		<fieldset>
+			<legend>Сообщение</legend>
+			<div class="flash-messages">
+				{% for message in messages %}
+				<div class="flash-message">{{ message }}</div>
+				{% endfor %}
+			</div>
+		</fieldset>
+		{% endif %}
+		{% endwith %}
 
-        {% block content %}{% endblock %}
-    </div>
+		{% block content %}{% endblock %}
+	</div>
 </body>
 </html>
