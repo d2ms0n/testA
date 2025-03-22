@@ -1,4 +1,3 @@
-users.db
 myenv
 /__pycache__
 .vc
@@ -13,13 +12,12 @@ myenv
 /.vs/test/FileContentIndex/87fa90a2-f67e-47d3-949e-38d502831541.vsidx
 /.vs/test/FileContentIndex/8f50aa6c-5cfc-480d-9273-7800b2066098.vsidx
 /.vs/test/v17/.wsuo
-cars.db
 /.vs/ProjectSettings.json
 /.vs/PythonSettings.json
 /.vs/test/config/applicationhost.config
-/instance/database.db
 /.vs/test/v17
 /env/Include/site/python3.9/greenlet
 /env/Lib/site-packages
 /env/Scripts
 /env/pyvenv.cfg
+/.vs/slnx.sqlite-journal
