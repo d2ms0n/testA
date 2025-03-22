@@ -1,6 +1,6 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
-from external import id_to_name
+from sqlalchemy import desc
 from models import Cars, Status, Role, User, app, db
 
 
@@ -16,7 +16,9 @@ from models import Cars, Status, Role, User, app, db
 @login_required
 def index():
 	
-	return render_template("index.html")
+	cars = db.session.query(Cars).order_by(desc(Cars.id)).limit(3).all()
+	return render_template("index.html", cars=cars)
+#last_three_cars = db.session.query(Cars).order_by(desc(Cars.id)).limit(3).all()
 
 #User endpoint
 #region User 
@@ -165,7 +167,7 @@ def delete(id):
 
 
 # если метод GET отправляет форму
-# Если POST проверяет данные и создает нового пользователя с ролью по умолчанию Покупатель
+# Если POST проверяет данные и создает нового 
 @app.route("/add_car", methods=["GET", "POST"])
 def add_car():
 
