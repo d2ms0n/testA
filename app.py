@@ -1,7 +1,7 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 from sqlalchemy import desc
-from models import Cars, Status, Role, User, app, db
+from models import Cars, Comment, Status, Role, User, app, db
 
 
 
@@ -258,6 +258,34 @@ def car_delete(id):
 
 
 #endregion
+
+
+#Comment endpoint
+#region Comment
+
+@app.route("/add_comment", methods=["POST"])
+@login_required
+def add_comment():
+	
+	form_data = request.form	
+	comment, errors = Comment.create(form_data)	
+	if errors:
+		for error in errors:
+			flash(error)              
+	else:
+		flash("Комментарий успешно создан", "success")
+		
+	return redirect(request.referrer or url_for('index'))
+
+
+	
+
+#endregion
+
+
+
+
+
 
 
 if __name__ == "__main__":

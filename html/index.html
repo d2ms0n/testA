@@ -27,15 +27,7 @@
         <p>{{ car.description }}</p>
     </div>
 
-    <!--<div class="card-contacts">
-        <h3>Контакты</h3>
-        {% if car.manager_name %}
-            <p><strong>Менеджер:</strong> {{ car.manager_name }}</p>
-        {% endif %}
-        {% if car.buyer_name %}
-            <p><strong>Покупатель:</strong> {{ car.buyer_name }}</p>
-        {% endif %}
-    </div>-->
+
     <!-- Комментарии -->
     <div class="card-comments">
         <div class="comment-toggle">Комментарии&#9660;</div>
@@ -50,50 +42,51 @@
                 </div>
             </div>
 
-
-            <div class="comment">
-                <div class="comment-header">
-                    <span class="comment-author">Иван иванов</span>
-                    <span class="comment-date">2025-3-11</span>
-                </div>
-                <div class="comment-body">
-                    <p class="comment-text">Текст комментария</p>
-                </div>
+            <div class="comment-form">
+                <form method="POST" action="/add_comment">
+                    <input type="hidden" name="car_id" value="{{ car.id }}">
+                    <input type="hidden" name="autor_id" value="{{ current_user.id }}">
+                    <div class="form-group">
+                        <label for="comment">Комментарий:</label>
+                        <textarea name="text" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit">Отправить</button>
+                    </div>
+                </form>
             </div>
-
-            <!-- Дополнительные комментарии -->
         </div>
     </div>
-
 </div>
 
-
-
-{% endfor %}
-
+    {% endfor %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const toggles = document.querySelectorAll('.comment-toggle');
         toggles.forEach(toggle => {
-            toggle.addEventListener('click', function(event) {
+            toggle.addEventListener('click', function (event) {
                 const commentsList = this.nextElementSibling;
                 const isActive = commentsList.style.maxHeight;
-                
+
                 // Скрываем все остальные комментарии
                 document.querySelectorAll('.comments-list').forEach(list => {
                     list.style.maxHeight = null;
                 });
-                
+
                 if (!isActive) {
                     commentsList.style.maxHeight = commentsList.scrollHeight + 'px';
                 }
             });
         });
     });
+
+
+
+
 </script>
 
-{% endblock %}
+    {% endblock %}
 
 
 

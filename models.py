@@ -415,6 +415,108 @@ class Cars(db.Model):
 		)
 
 
+
+class Comment(db.Model):
+	__tablename__ = "comment"
+
+	id = db.Column(db.Integer, primary_key=True)
+	autor_id = db.Column(db.Integer, nullable=False)
+	autor_name = db.Column(db.String(40), nullable=False)
+	car_id = db.Column(db.Integer, nullable=False)
+	text = db.Column(db.Text, nullable=False)
+	created_at = db.Column(db.DateTime, default=datetime.utcnow)
+	
+	@classmethod 
+	def create(cls, form_data):
+	
+		errors = []
+		errors += cls._validate_autor_id(form_data.get("autor_id"))
+		errors += cls._validate_car_id(form_data.get("car_id"))
+		errors += cls._validate_text(form_data.get("text"))
+
+#manager_name = get_user_name(form_data.get("manager_id"))
+		if errors:
+			return False, errors
+
+		autor_name = get_user_name(form_data.get("autor_id"))
+		
+		data_comment = {
+			"autor_id": form_data["autor_id"],
+			"autor_name": autor_name,
+			"car_id": form_data["car_id"],
+			"text": form_data["text"],
+			"created_at": datetime.utcnow()
+		}
+
+		# Добавление в сессию и сохранение
+		try:
+			new_comment = cls(**data_comment)
+			db.session.add(new_comment)
+			db.session.commit()
+			return new_comment, None
+
+		except Exception as ex:
+			db.session.rollback()
+			return None, str(ex)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	# Валидация autor_id
+	@staticmethod
+	def _validate_autor_id(autor_id):
+		errors = []
+		if not autor_id:
+			errors.append("ID автора не указан")
+		elif not autor_id.isdigit():
+			errors.append("ID автомобиля должен быть числом")
+		return errors	
+
+	# Валидация car_id
+	@staticmethod
+	def _validate_car_id(car_id):
+		errors = []
+		if not car_id:
+			errors.append("ID автора не указан")
+		elif not car_id.isdigit():
+			errors.append("ID автомобиля должен быть числом")
+		return errors
+	
+	#Валидация text
+	@staticmethod
+	def _validate_text(text):
+		errors = []
+		if not text:
+			errors.append("Текст комментария обязателен")
+		return errors 
+	
+
+
+
+
+
+
+
+
+
+
+	def __repr__(self):
+		return f"<Comment {self.id}, {self.autor_id}, {self.autor_name}, {self.car_id}, {self.text}, {self.created_at}>"
+	
+
+
 #Общие функции
 
 #Строку в datetime
