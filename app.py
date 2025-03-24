@@ -1,7 +1,8 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 from sqlalchemy import desc
-from models import Cars, Comment, Status, Role, User, app, db
+from models import Cars, Comment, Status, Role, User, app, db, find_and_add_comment
+from jinja2 import Environment, FileSystemLoader
 
 
 
@@ -17,8 +18,9 @@ from models import Cars, Comment, Status, Role, User, app, db
 def index():
 	
 	cars = db.session.query(Cars).order_by(desc(Cars.id)).limit(3).all()
-	return render_template("index.html", cars=cars)
-#last_three_cars = db.session.query(Cars).order_by(desc(Cars.id)).limit(3).all()
+	cars_and_comment= (find_and_add_comment(cars))
+	return render_template("index.html", cars_and_comment=cars_and_comment)
+
 
 #User endpoint
 #region User 
@@ -169,7 +171,12 @@ def delete(id):
 # если метод GET отправляет форму
 # Если POST проверяет данные и создает нового 
 @app.route("/add_car", methods=["GET", "POST"])
+@login_required
 def add_car():
+
+	if not (current_user.is_admin or current_user.is_manager):
+		flash(f"У вас нет доступа к этой странице", "danger")
+		return redirect(url_for("index"))
 
 	status = Status.choices() 
 	managers, buers = User.get_managers_and_buers()
@@ -196,12 +203,12 @@ def add_car():
 @login_required
 def update_car(id):
 
-	status = Status.choices() 
-	managers, buers = User.get_managers_and_buers()
-
-	if not current_user.is_admin:
+	if not (current_user.is_admin or current_user.is_manager):
 		flash(f"У вас нет доступа к этой странице", "danger")
 		return redirect(url_for("index"))
+
+	status = Status.choices() 
+	managers, buers = User.get_managers_and_buers()
 
 	if request.method == "POST":
 
@@ -227,7 +234,7 @@ def update_car(id):
 @login_required
 def all_cars():
 
-	if not current_user.is_admin:
+	if not (current_user.is_admin or current_user.is_manager):
 		flash(f"У вас нет доступа к этой странице", "danger")
 		return redirect(url_for("index"))
 
@@ -282,6 +289,19 @@ def add_comment():
 
 #endregion
 
+
+
+@app.route("/mycars", methods=["GET"])
+@login_required
+def mycars():
+
+	cars = Cars.get_car_from_buyerid(current_user.id)
+	if cars:
+		cars_and_comment = find_and_add_comment(cars)
+		return render_template("index.html", cars_and_comment=cars_and_comment)
+	else:
+		flash("У вас нет купленных автомобилей")
+		return redirect(url_for("index"))
 
 
 

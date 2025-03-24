@@ -201,8 +201,8 @@ class User(UserMixin, db.Model):
 		errors = []
 		if not password:
 			errors.append("Пароль не может быть пустым")
-		elif len(password) < 6:
-			errors.append("Пароль должен содержать минимум 6 символов")
+		elif len(password) < 4:
+			errors.append("Пароль должен содержать минимум 4 символа")
 		return errors
 
 	@staticmethod
@@ -357,6 +357,12 @@ class Cars(db.Model):
 		except Exception as ex:
 			db.session.rollback()
 			return None, str(ex)
+
+
+#получить список автомобилей покупателя по его ид
+	@classmethod 
+	def get_car_from_buyerid(cls, buyer_id):
+		return cls.query.filter_by(buyer_id=buyer_id).all()
 
 
 #Валидация полученных данных
@@ -543,3 +549,56 @@ def get_user_name(manager_id):
 	except ValueError:
 		# Если ID не может быть преобразован в целое число
 		return ""
+
+
+
+
+
+def find_and_add_comment(cars):
+	cars_and_comment = []
+	
+	for car in cars:
+		comments = Comment.query\
+			.filter_by(car_id=car.id)\
+			.order_by(Comment.created_at.desc())\
+			.all()
+			
+		# Форматируем даты комментариев
+		formatted_comments = [
+			{
+				"autor_id": comment.autor_id,
+				"autor_name": comment.autor_name,
+				"car_id": comment.car_id,
+				"text": comment.text,
+				"created_at": comment.created_at.strftime('%Y-%m-%d %H:%M')                
+			}
+			for comment in comments
+		]
+		
+		cars_and_comment.append({"car": car,
+			"comments": formatted_comments
+		})
+	
+	return cars_and_comment
+
+
+
+ # # Для одиночных значений
+ # if key == 'car_number':
+ # query = query.filter(Cars.car_number.ilike(f'%{value}%'))
+ # elif key == 'model':
+ # query = query.filter(Cars.model.ilike(f'%{value}%'))
+ # elif key == 'status':
+ # query = query.filter(Cars.status == value)
+ # elif key == 'production_date':
+ # query = query.filter(Cars.production_date == value)
+ # elif key == 'warehouse_date':
+ # query = query.filter(Cars.warehouse_date == value)
+ # elif key == 'manager_name':
+ # query = query.filter(Cars.manager_name.ilike(f'%{value}%'))
+ # elif key == 'buyer_name':
+ # query = query.filter(Cars.buyer_name.ilike(f'%{value}%'))
+ 
+ # # Получение результатов
+ # results = query.all()
+ 

@@ -10,46 +10,50 @@
 	</style>
 </head>
 <body>
-	<div class="sidebar">
-		<div class="sidebar-header">
+    <div class="sidebar">
+        <div class="sidebar-header">
 
-			{% if current_user is defined and current_user.login is defined %}
-			<div class="user-info">
-				<span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
-			</div>
-			<a href="/logout" class="logout-button">Выход</a>
+            {% if current_user is defined and current_user.login is defined %}
+            <div class="user-info">
+                <span class="username">{{ current_user.login }}:{{ current_user.role.value }}</span>
+            </div>
+            <a href="/logout" class="logout-button">Выход</a>
 
-			{% else %}
-			<div class="user-info">
-				<span class="username">Вы не опознаны</span>
-			</div>
-			<a href="login" class="logout-button">Вход</a>
-			{% endif %}
-		</div>
+            {% else %}
+            <div class="user-info">
+                <span class="username">Вы не опознаны</span>
+            </div>
+            <a href="login" class="logout-button">Вход</a>
+            {% endif %}
+        </div>
 
-		<a href="/index">Главная</a>
+        <a href="/index">Главная</a>
+        <a href="/mycars">Мой автомобиль</a>
 
-		{% if current_user.is_authenticated and current_user.is_admin %}
+        {% if current_user.is_authenticated and current_user.is_admin or current_user.is_manager %}
 
-		<fieldset class="admin_panel">
-			<legend>Админ панель</legend>
-			<a href="/alluser">Все пользователи</a>
-			<a href="/registry">Добавить пользователя</a>
-			<a href="/all_cars">Все автомобили</a>
-			<a href="/add_car">Добавить автомобиль</a>
-		</fieldset>
+        <fieldset class="admin_panel">
+            <legend>Админ панель</legend>
+            <a href="/all_cars">Все автомобили</a>
+            <a href="/add_car">Добавить автомобиль</a>
 
-		{% else %}
-		<a href="/registry">Регистрация</a>
-		{% endif %}
+            {% if current_user.is_admin %}
+            <a href="/alluser">Все пользователи</a>
+            <a href="/registry">Добавить пользователя</a>
+            {% endif %}
+        </fieldset>
 
-
-
- 
-
+        {% else %}
+        <a href="/registry">Регистрация</a>
+        {% endif %}
 
 
-	</div>
+
+
+
+
+
+    </div>
 
 	<div class="main-content">
 

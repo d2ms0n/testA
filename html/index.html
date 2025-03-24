@@ -4,89 +4,96 @@
 
 {% block content %}
 
-{% for car in cars %}
+{% for item in cars_and_comment %}
+    {% set car = item.car %}
+    {% set comments = item.comments %}
 
 <div class="card">
-    <div class="card-info">
-        <div>
-            <p><strong>Номер автомобиля:</strong> {{ car.car_number }}</p>
-            <p><strong>Модель:</strong> {{ car.model }}</p>
-            <p><strong>Дата производства:</strong> {{ car.production_date }}</p>
-        </div>
-        <div>
-            <p><strong>Дата поступления:</strong> {% if car.warehouse_date %}{{ car.warehouse_date }}{% else %}-{% endif %}</p>
-            <p>
-                <strong>Статус:</strong>
-                <span class="card-status status-{{ car.status.name }}">{{ car.status.value }}</span>
-            </p>
-        </div>
-    </div>
+	<div class="card-info">
+		<div>
+			<p><strong>Номер автомобиля:</strong> {{ car.car_number }}</p>
+			<p><strong>Модель:</strong> {{ car.model }}</p>
+			<p><strong>Дата производства:</strong> {{ car.production_date }}</p>
+		</div>
+		<div>
+			<p><strong>Дата поступления:</strong> {% if car.warehouse_date %}{{ car.warehouse_date }}{% else %}-{% endif %}</p>
+			<p>
+				<strong>Статус:</strong>
+				<span class="card-status status-{{ car.status.name }}">{{ car.status.value }}</span>
+			</p>
+		</div>
+	</div>
 
-    <div class="card-description">
-        <h4>Описание</h4>
-        <p>{{ car.description }}</p>
-    </div>
+	<div class="card-description">
+		<strong>Описание:</strong><span>{{ car.description }}</span>
+	</div>
 
+	<!-- Комментарии -->
 
-    <!-- Комментарии -->
-    <div class="card-comments">
-        <div class="comment-toggle">Комментарии&#9660;</div>
-        <div class="comments-list">
-            <div class="comment">
-                <div class="comment-header">
-                    <span class="comment-author">Иван иванов</span>
-                    <span class="comment-date">2025-3-11</span>
-                </div>
-                <div class="comment-body">
-                    <p class="comment-text">Текст комментария</p>
-                </div>
-            </div>
+  
+	<div class="card-comments">
+		<div class="comment-toggle">Комментарии&#9660;</div>
+		<div class="comments-list">
 
-            <div class="comment-form">
-                <form method="POST" action="/add_comment">
-                    <input type="hidden" name="car_id" value="{{ car.id }}">
-                    <input type="hidden" name="autor_id" value="{{ current_user.id }}">
-                    <div class="form-group">
-                        <label for="comment">Комментарий:</label>
-                        <textarea name="text" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button type="submit">Отправить</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+		{% for comment in comments %}
+
+			<div class="comment">
+				<div class="comment-header">
+					<span class="comment-author">{{comment.autor_name}}</span>
+					<span class="comment-date">{{ comment.created_at}}</span>
+				</div>
+				<div class="comment-body">
+					<p class="comment-text">{{comment.text}}</p>
+				</div>
+			</div>
+
+	   {% endfor %}
+
+			<div class="comment-form">
+				<form method="POST" action="/add_comment">
+					<input type="hidden" name="car_id" value="{{ car.id }}">
+					<input type="hidden" name="autor_id" value="{{ current_user.id }}">
+					<div class="form-group">
+						<label for="comment">Комментарий:</label>
+						<textarea name="text" required></textarea>
+					</div>
+					<div class="form-group">
+						<button type="submit">Отправить</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
 </div>
 
-    {% endfor %}
+	{% endfor %}
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const toggles = document.querySelectorAll('.comment-toggle');
-        toggles.forEach(toggle => {
-            toggle.addEventListener('click', function (event) {
-                const commentsList = this.nextElementSibling;
-                const isActive = commentsList.style.maxHeight;
+	document.addEventListener('DOMContentLoaded', function () {
+		const toggles = document.querySelectorAll('.comment-toggle');
+		toggles.forEach(toggle => {
+			toggle.addEventListener('click', function (event) {
+				const commentsList = this.nextElementSibling;
+				const isActive = commentsList.style.maxHeight;
 
-                // Скрываем все остальные комментарии
-                document.querySelectorAll('.comments-list').forEach(list => {
-                    list.style.maxHeight = null;
-                });
+				// Скрываем все остальные комментарии
+				document.querySelectorAll('.comments-list').forEach(list => {
+					list.style.maxHeight = null;
+				});
 
-                if (!isActive) {
-                    commentsList.style.maxHeight = commentsList.scrollHeight + 'px';
-                }
-            });
-        });
-    });
+				if (!isActive) {
+					commentsList.style.maxHeight = commentsList.scrollHeight + 'px';
+				}
+			});
+		});
+	});
 
 
 
 
 </script>
 
-    {% endblock %}
+	{% endblock %}
 
 
 

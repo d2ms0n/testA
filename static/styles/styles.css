@@ -344,7 +344,6 @@ option:checked, option:hover {
 .card-info {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
 }
 
     .card-info div {
@@ -367,23 +366,23 @@ option:checked, option:hover {
 }
 
 .status-SALE {
-    background-color: #28a745;
-    color: white;
+    background-color: #ebf9ed;
+    color: black;
 }
 
 .status-SOLD {
-    background-color: #dc3545;
-    color: white;
+    background-color: #fbe9e9;
+    color: black;
 }
 
 .status-ZAKAZ {
-    background-color: #ffc107;
+    background-color: #f9f7eb;
     color: black;
 }
 
 .status-TOWRH {
-    background-color: #0e69e1;
-    color: white;
+    background-color: #eae9fb;
+    color: black;
 }
 
 .card-description h4 {
@@ -411,7 +410,7 @@ option:checked, option:hover {
 
 
 .card-comments {
-    margin-top: 20px;
+
 }
 
 .comment {
