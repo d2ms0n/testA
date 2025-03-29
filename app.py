@@ -1,8 +1,8 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 from sqlalchemy import desc
-from models import Cars, Comment, Status, Role, User, app, db, find_and_add_comment
-from jinja2 import Environment, FileSystemLoader
+from models import Cars, Comment, Status, Role, User, app, db, find_and_add_comment, find_db_cars
+
 
 
 
@@ -302,6 +302,35 @@ def mycars():
 	else:
 		flash("У вас нет купленных автомобилей")
 		return redirect(url_for("index"))
+
+
+
+
+# Редактирование пользователя
+@app.route("/search_cars", methods=["GET", "POST"])
+@login_required
+def search_cars():
+
+	cars = []
+	form_data=[]
+	status = Status.choices() 
+
+
+	# status = Status.choices() 
+	# managers, buers = User.get_managers_and_buers()
+
+	if request.method == "POST":
+
+		form_data = request.form
+		cars = find_db_cars(form_data)
+
+		print("Массив содержит: ", *cars) ##########################
+
+		if cars:
+			cars_and_comment = find_and_add_comment(cars)
+			return render_template('search_cars.html', form_data=form_data, status=status, cars=cars, cars_and_comment=cars_and_comment)
+
+	return render_template('search_cars.html', form_data=form_data, status=status, cars=cars , cars_and_comment="" )
 
 
 

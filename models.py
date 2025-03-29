@@ -528,11 +528,12 @@ class Comment(db.Model):
 #Строку в datetime
 def str_to_datetime(str):
 
+
 	try:
 		return datetime.strptime(str, "%Y-%m-%d").date()
 
 	except ValueError as ex:
-		print(f"Ошибка при конвертации даты: {ex}")
+		#print(f"Ошибка при конвертации даты: {ex}")
 		return None
 
 
@@ -583,22 +584,51 @@ def find_and_add_comment(cars):
 
 
 
- # # Для одиночных значений
- # if key == 'car_number':
- # query = query.filter(Cars.car_number.ilike(f'%{value}%'))
- # elif key == 'model':
- # query = query.filter(Cars.model.ilike(f'%{value}%'))
- # elif key == 'status':
- # query = query.filter(Cars.status == value)
- # elif key == 'production_date':
- # query = query.filter(Cars.production_date == value)
- # elif key == 'warehouse_date':
- # query = query.filter(Cars.warehouse_date == value)
- # elif key == 'manager_name':
- # query = query.filter(Cars.manager_name.ilike(f'%{value}%'))
- # elif key == 'buyer_name':
- # query = query.filter(Cars.buyer_name.ilike(f'%{value}%'))
- 
- # # Получение результатов
- # results = query.all()
- 
+
+
+def find_db_cars(form_data):
+	
+	data_car = {
+		"car_number": form_data.get("car_number"),
+		"model": form_data.get("model"),
+		"production_date": str_to_datetime(form_data.get("production_date")),
+		"warehouse_date": str_to_datetime(form_data.get("warehouse_date")),
+		"status": form_data.get("status"),
+		"manager_name": form_data.get("manager_name"),
+		"buyer_name": form_data.get("buyer_name")
+	}
+	
+	query = Cars.query
+	
+	for key, value in data_car.items():
+		if not value:
+			continue
+		print(f"key:{key}---value:{value}/n")	####################
+		if key == 'car_number':
+			query = query.filter(Cars.car_number.ilike(f'%{value}%'))
+			#query = query.filter(func.lower(Cars.car_number).like(f'%{value.lower()}%'))
+		elif key == 'model':
+			query = query.filter(Cars.model.ilike(f'%{value}%'))
+		elif key == 'status':
+			query = query.filter(Cars.status == value)
+		elif key == 'production_date':
+			query = query.filter(Cars.production_date == value)
+		elif key == 'warehouse_date':
+			query = query.filter(Cars.warehouse_date == value)
+		elif key == 'manager_name':
+			query = query.filter(Cars.manager_name.ilike(f'%{value}%'))
+		elif key == 'buyer_name':
+			query = query.filter(Cars.buyer_name.ilike(f'%{value}%'))
+
+	compiled = query.statement.compile()##########################################
+	print("SQL Query:")
+	print(compiled)
+	print("Параметры:")
+	print(compiled.params)
+	
+	results = query.all()
+
+	# sql_query = str(query.statement)
+	# print(sql_query)
+
+	return results

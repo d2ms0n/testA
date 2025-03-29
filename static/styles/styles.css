@@ -498,3 +498,33 @@ option:checked, option:hover {
     .form-group button {
         padding: 5px;
     }
+
+/*    Форма поиска */
+
+.search-form {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+    .search-form label {
+        display: block;
+    }
+
+    .search-form input {
+        width: 85%;
+    }
+
+    .search-form select {
+        width: 92%;
+        padding: 10px;
+    }
+
+
+    .search-form .column {
+        float: left;
+        width: 48%;
+    }
+
+
