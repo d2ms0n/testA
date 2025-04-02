@@ -1,9 +1,10 @@
 import re
 from enum import Enum
-from flask import Flask
+from flask import Flask, flash
 from flask_login import LoginManager, UserMixin
 from datetime import date, datetime
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from werkzeug.security import check_password_hash, generate_password_hash
 
 
@@ -150,6 +151,13 @@ class User(UserMixin, db.Model):
 			db.session.rollback()
 			return None, str(ex)
 
+
+	@classmethod
+	def get_admins_and_managers(cls):
+		users = cls.query.filter(cls.role.in_([Role.ADMIN, Role.MANAGER])).all()
+		return users
+
+
 	@staticmethod
 	def _validate_id(id_value):
 		errors = []
@@ -163,7 +171,6 @@ class User(UserMixin, db.Model):
 
 	@staticmethod
 	def _validate_login(login):
-		print(f"len!={len(login)}")
 		errors = []
 		if not login:
 			errors.append("Логин не может быть пустым")
@@ -260,6 +267,7 @@ class Cars(db.Model):
 	model = db.Column(db.String(50), nullable=False)
 	production_date = db.Column(db.Date, nullable=False)
 	warehouse_date = db.Column(db.Date, nullable=True)
+	data_sale = db.Column(db.Date, nullable=True)
 	status = db.Column(db.Enum(Status), nullable=False)
 	description = db.Column(db.Text)
 	manager_id = db.Column(db.Integer, nullable=True)
@@ -318,6 +326,7 @@ class Cars(db.Model):
 	@classmethod  
 	def update(cls, form_data):
 
+		data_sale = None
 		errors = []
 		errors += cls._validate_car_number(form_data.get("car_number"))
 		errors += cls._validate_model(form_data.get("model"))
@@ -329,15 +338,36 @@ class Cars(db.Model):
 			return False, errors
 
 
-
 		manager_name = get_user_name(form_data.get("manager_id"))
 		buyer_name = get_user_name(form_data.get("buyer_id"))
+
+		print(form_data.get("status"))##############################
+
+		if form_data.get("status") == "SOLD":
+
+			format_time = datetime.now().strftime("%Y-%m-%d") 
+			admins = User.get_admins_and_managers()
+			for admin in admins:
+				msg_data = {
+					"user_id":admin.id,
+					"text": f"Продан автомобиль {form_data["model"]}, номер {form_data["car_number"]},покупатель {buyer_name}, дата продажи {format_time}"					
+					}
+				print(f"msg{msg_data}/n")#######################
+				Message.create(msg_data)
+			data_sale = datetime.now()
+
+			
+
+
+
+
 
 		data_car = {
 			"car_number": form_data["car_number"],
 			"model": form_data["model"],
 			"production_date": str_to_datetime(form_data["production_date"]),
 			"warehouse_date": str_to_datetime(form_data["warehouse_date"]),
+			"data_sale":data_sale,
 			"status": form_data["status"],
 			"description": form_data["description"],
 			"manager_id": form_data["manager_id"],
@@ -428,7 +458,7 @@ class Comment(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	autor_id = db.Column(db.Integer, nullable=False)
 	autor_name = db.Column(db.String(40), nullable=False)
-	car_id = db.Column(db.Integer, nullable=False)
+	car_id = db.Column(db.Integer, nullable=True)
 	text = db.Column(db.Text, nullable=False)
 	created_at = db.Column(db.DateTime, default=datetime.utcnow)
 	
@@ -440,7 +470,6 @@ class Comment(db.Model):
 		errors += cls._validate_car_id(form_data.get("car_id"))
 		errors += cls._validate_text(form_data.get("text"))
 
-#manager_name = get_user_name(form_data.get("manager_id"))
 		if errors:
 			return False, errors
 
@@ -464,21 +493,6 @@ class Comment(db.Model):
 		except Exception as ex:
 			db.session.rollback()
 			return None, str(ex)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	# Валидация autor_id
 	@staticmethod
@@ -508,19 +522,71 @@ class Comment(db.Model):
 			errors.append("Текст комментария обязателен")
 		return errors 
 	
-
-
-
-
-
-
-
-
-
-
 	def __repr__(self):
 		return f"<Comment {self.id}, {self.autor_id}, {self.autor_name}, {self.car_id}, {self.text}, {self.created_at}>"
 	
+
+
+
+class Message(db.Model):
+	__tablename__ = "message"
+
+	id = db.Column(db.Integer, primary_key=True)
+	user_id = db.Column(db.Integer, nullable=False)
+	text = db.Column(db.Text, nullable=False)
+
+	
+	@classmethod 
+	def create(cls, msg_data):
+	
+		# Добавление в сессию и сохранение
+		try:
+			new_msg = cls(**msg_data)
+			db.session.add(new_msg)
+			db.session.commit()
+			return new_msg, None
+
+		except Exception as ex:
+			db.session.rollback()
+			return None, str(ex)
+
+
+	@classmethod
+	def show_and_delete_by_user(cls, user_id):
+
+		"""
+		Выводит все сообщения для пользователя и удаляет их из базы	
+		:param user_id: ID пользователя
+		:return: (True, ошибка)
+		"""
+
+		try:
+			# Получаем все сообщения пользователя
+			messages = cls.query.filter_by(user_id=user_id).all()
+
+			if not messages:
+				return
+		
+		# Показываем каждое сообщение в flash
+			for msg in messages:
+				flash(msg.text)
+
+			# Удаляем сообщения
+			cls.query.filter(cls.user_id == user_id).delete()
+			db.session.commit()			
+			return
+	
+		except Exception as ex:
+			# Откатываем транзакцию при ошибке
+			db.session.rollback()
+			return str(ex)
+
+	
+	def __repr__(self):
+		return f"<Message {self.id}, {self.user_id}, {self.text}>"
+	
+
+
 
 
 #Общие функции
@@ -556,9 +622,19 @@ def get_user_name(manager_id):
 
 
 def find_and_add_comment(cars):
+
+	"""
+	Добавляет к каждому автомобилю список комментариев
+	
+	:param cars: список автомобилей
+	:return: список автомобилей с комментариями
+	"""
+
 	cars_and_comment = []
 	
 	for car in cars:
+
+		# Получаем комментарии для текущего автомобиля
 		comments = Comment.query\
 			.filter_by(car_id=car.id)\
 			.order_by(Comment.created_at.desc())\
@@ -584,51 +660,55 @@ def find_and_add_comment(cars):
 
 
 
-
-
 def find_db_cars(form_data):
+	"""
+	Поиск автомобилей по заданным параметрам    
+	:param form_data: словарь с данными для поиска
+	:return: список найденных автомобилей
+	"""
 	
-	data_car = {
-		"car_number": form_data.get("car_number"),
-		"model": form_data.get("model"),
-		"production_date": str_to_datetime(form_data.get("production_date")),
-		"warehouse_date": str_to_datetime(form_data.get("warehouse_date")),
-		"status": form_data.get("status"),
-		"manager_name": form_data.get("manager_name"),
-		"buyer_name": form_data.get("buyer_name")
+	# Маппинг полей для поиска
+	search_fields = {
+		"car_number": Cars.car_number,
+		"model": Cars.model,
+		"status": Cars.status,
+		"production_date": Cars.production_date,
+		"warehouse_date": Cars.warehouse_date,
+		"manager_name": Cars.manager_name,
+		"buyer_name": Cars.buyer_name
 	}
 	
+	# Подготовка данных для поиска
+	data_car = {
+		key: value 
+		for key, value in form_data.items() 
+		if value and key in search_fields
+	}
+	
+	# Базовый запрос
 	query = Cars.query
 	
+	# Применение фильтров
 	for key, value in data_car.items():
-		if not value:
-			continue
-		print(f"key:{key}---value:{value}/n")	####################
-		if key == 'car_number':
-			query = query.filter(Cars.car_number.ilike(f'%{value}%'))
-			#query = query.filter(func.lower(Cars.car_number).like(f'%{value.lower()}%'))
-		elif key == 'model':
-			query = query.filter(Cars.model.ilike(f'%{value}%'))
-		elif key == 'status':
-			query = query.filter(Cars.status == value)
-		elif key == 'production_date':
-			query = query.filter(Cars.production_date == value)
-		elif key == 'warehouse_date':
-			query = query.filter(Cars.warehouse_date == value)
-		elif key == 'manager_name':
-			query = query.filter(Cars.manager_name.ilike(f'%{value}%'))
-		elif key == 'buyer_name':
-			query = query.filter(Cars.buyer_name.ilike(f'%{value}%'))
-
-	compiled = query.statement.compile()##########################################
-	print("SQL Query:")
-	print(compiled)
-	print("Параметры:")
-	print(compiled.params)
+		if key in ["car_number", "model", "manager_name", "buyer_name"]:
+			# Для текстовых полей используем нечувствительный поиск
+			query = query.filter(
+				func.lower(search_fields[key]).like(f'%{value.lower()}%')
+			)
+		elif key in ["production_date", "warehouse_date"]:
+			# Для дат используем точное сравнение
+			query = query.filter(search_fields[key] == value)
+		else:
+			# Для остальных полей (статус)
+			query = query.filter(search_fields[key] == value)
 	
-	results = query.all()
+	# Отладка запроса (можно раскомментировать при необходимости)
+	# compiled = query.statement.compile()
+	# print("SQL Query:")
+	# print(compiled)
+	# print("Параметры:")
+	# print(compiled.params)
+	
+	return query.all()
 
-	# sql_query = str(query.statement)
-	# print(sql_query)
 
-	return results

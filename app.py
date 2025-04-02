@@ -1,7 +1,7 @@
 from flask import flash, redirect, render_template, request, session, url_for
 from flask_login import login_required, login_user, logout_user, current_user
 from sqlalchemy import desc
-from models import Cars, Comment, Status, Role, User, app, db, find_and_add_comment, find_db_cars
+from models import Cars, Comment, Message, Status, Role, User, app, db, find_and_add_comment, find_db_cars
 
 
 
@@ -17,6 +17,7 @@ from models import Cars, Comment, Status, Role, User, app, db, find_and_add_comm
 @login_required
 def index():
 	
+	Message.show_and_delete_by_user(current_user.id)
 	cars = db.session.query(Cars).order_by(desc(Cars.id)).limit(3).all()
 	cars_and_comment= (find_and_add_comment(cars))
 	return render_template("index.html", cars_and_comment=cars_and_comment)
@@ -102,7 +103,6 @@ def user_update(id):
 		form_data = {}
 		for key in request.form:
 			form_data[key] = request.form.get(key)
-		print(f"form{form_data}")
 		user, error = User.update(form_data)
 
 
@@ -141,7 +141,6 @@ def alluser():
 
 
 # Удаление (Delete)
-# return redirect(request.referrer or url_for('default_route'))
 @app.route("/user_delete/<int:id>", methods=["POST"])
 @login_required
 def delete(id):
@@ -290,7 +289,7 @@ def add_comment():
 #endregion
 
 
-
+# автомобили купленые текущим пользователем
 @app.route("/mycars", methods=["GET"])
 @login_required
 def mycars():
@@ -306,7 +305,7 @@ def mycars():
 
 
 
-# Редактирование пользователя
+# поиск автомобиля
 @app.route("/search_cars", methods=["GET", "POST"])
 @login_required
 def search_cars():
@@ -315,16 +314,12 @@ def search_cars():
 	form_data=[]
 	status = Status.choices() 
 
-
-	# status = Status.choices() 
-	# managers, buers = User.get_managers_and_buers()
-
 	if request.method == "POST":
 
 		form_data = request.form
 		cars = find_db_cars(form_data)
 
-		print("Массив содержит: ", *cars) ##########################
+		# print("Массив содержит: ", *cars)
 
 		if cars:
 			cars_and_comment = find_and_add_comment(cars)
