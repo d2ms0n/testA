@@ -6,11 +6,6 @@ from models import Cars, Comment, Message, Status, Role, User, app, db, find_and
 
 
 
-
-
-
-
-
 # Главная страница
 @app.route("/")
 @app.route("/index")
@@ -329,6 +324,11 @@ def search_cars():
 
 
 
+@app.route("/stat", methods=["GET"])
+@login_required
+def stat():
+	stat=Cars.get_full_statistics()
+	return render_template('stat.html', stat=stat)
 
 
 

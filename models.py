@@ -341,7 +341,6 @@ class Cars(db.Model):
 		manager_name = get_user_name(form_data.get("manager_id"))
 		buyer_name = get_user_name(form_data.get("buyer_id"))
 
-		print(form_data.get("status"))##############################
 
 		if form_data.get("status") == "SOLD":
 
@@ -352,15 +351,11 @@ class Cars(db.Model):
 					"user_id":admin.id,
 					"text": f"Продан автомобиль {form_data["model"]}, номер {form_data["car_number"]},покупатель {buyer_name}, дата продажи {format_time}"					
 					}
-				print(f"msg{msg_data}/n")#######################
+
 				Message.create(msg_data)
 			data_sale = datetime.now()
 
 			
-
-
-
-
 
 		data_car = {
 			"car_number": form_data["car_number"],
@@ -393,6 +388,73 @@ class Cars(db.Model):
 	@classmethod 
 	def get_car_from_buyerid(cls, buyer_id):
 		return cls.query.filter_by(buyer_id=buyer_id).all()
+
+#Статистика авто
+#Количество проданных автомобилей
+	@classmethod
+	def get_sold_cars_count(cls):
+		return cls.query.filter_by(status=Status.SOLD.name).count()
+
+#Среднее время продажи автомобиля
+	@classmethod
+	def get_average_sale_time(cls):
+		
+		sold_cars = cls.query.filter(
+			cls.status == Status.SOLD,
+			cls.warehouse_date != None,
+			cls.data_sale != None
+		).all()
+
+		if not sold_cars:
+			return None
+
+		total_days = 0
+		for car in sold_cars:
+			total_days += (car.data_sale - car.warehouse_date).days
+
+		average_days = total_days / len(sold_cars)
+		return round(average_days) 
+
+
+#Статистика по моделям автомобилей
+	@classmethod
+	def get_model_statistics(cls):
+	
+		# Получаем базовую статистику
+		result = db.session.query(
+			cls.model,
+			db.func.count(cls.id).label('total'),
+			db.func.sum(db.case((cls.status == Status.SALE.name, 1), else_=0)).label('sale'),
+			db.func.sum(db.case((cls.status == Status.ZAKAZ.name, 1), else_=0)).label('zakaz'),
+			db.func.sum(db.case((cls.status == Status.TOWRH.name, 1), else_=0)).label('towrh'),
+			db.func.sum(db.case((cls.status == Status.SOLD.name, 1), else_=0)).label('sold')
+		).group_by(cls.model).all()
+
+		# Форматируем результат
+		stats = {
+			row.model: {
+				"total": row.total,
+				"sale": row.sale,
+				"zakaz": row.zakaz,
+				"towrh": row.towrh,
+				"sold": row.sold
+			}
+			for row in result
+		}
+		return stats
+
+
+
+
+#Полная статистика
+	@classmethod
+	def get_full_statistics(cls):
+		
+		return {
+			"sold_cars_count": cls.get_sold_cars_count(),
+			"average_sale_time": cls.get_average_sale_time(),
+			"model_statistics": cls.get_model_statistics()
+		}
 
 
 #Валидация полученных данных

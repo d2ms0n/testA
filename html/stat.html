@@ -1,0 +1,69 @@
+{# templates/stat.html #}
+{% extends "base.html" %}
+{% block title %}Статистика{% endblock %}
+
+
+
+{% block content %}
+<h1>Статистика по моделям автомобилей</h1>
+
+<table>
+    <thead>
+        <tr>
+            <th>Модель</th>
+            <th>Всего</th>
+            <th>Продажа</th>
+            <th>Заказ</th>
+            <th>Склад</th>
+            <th>Продано</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for model, data in stat.model_statistics.items() %}
+        <tr>
+            <td>{{ model }}</td>
+            <td>{{ data.total }}</td>
+            <td>{{ data.sale }}</td>
+            <td>{{ data.zakaz }}</td>
+            <td>{{ data.towrh }}</td>
+            <td>{{ data.sold }}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p><strong>Всего моделей:</strong> {{ stat.model_statistics|length }}</p>
+<p><strong>Количество проданных автомобилей:</strong> {{ stat.sold_cars_count  }}</p>
+<p><strong>Среднее время продажи автомобиля:</strong> {{ stat.average_sale_time }} дней</p>
+
+{% endblock %}
+
+
+
+
+<!--<h2>Статистика</h2>
+<table>
+    <tr>
+        <th>Наименование</th>
+        <th>Данные</th>
+    </tr>
+        <tr>
+        <th>Количество проданных автомобилей</th>
+        <th>Данные</th>
+    </tr>
+        <tr>
+        <th>Среднее время продажи автомобиля</th>
+        <th>Данные</th>
+    </tr>
+        <tr>
+        <th>Статистика по моделям автомобилей</th>
+        <th>Данные</th>
+    </tr>
+
+
+
+</table>-->
+<!--- Количество проданных автомобилей;
+- Среднее время продажи автомобиля;
+- Статистика по моделям автомобилей.-->
