@@ -601,7 +601,6 @@ class Message(db.Model):
 	@classmethod 
 	def create(cls, msg_data):
 	
-		# Добавление в сессию и сохранение
 		try:
 			new_msg = cls(**msg_data)
 			db.session.add(new_msg)
@@ -615,7 +614,6 @@ class Message(db.Model):
 
 	@classmethod
 	def show_and_delete_by_user(cls, user_id):
-
 		"""
 		Выводит все сообщения для пользователя и удаляет их из базы	
 		:param user_id: ID пользователя

@@ -242,7 +242,7 @@ def all_cars():
 @login_required
 def car_delete(id):
 
-	if not current_user.is_admin:
+	if not (current_user.is_admin or current_user.is_manager):
 		flash(f"У вас нет доступа к этой странице", "danger")
 		return redirect(url_for("index"))
 
